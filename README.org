@@ -1,3 +1,3 @@
 #+TITLE: Arch-Emacs Bootstrapping Script
 
-[[file:dwm.png][screenshot]]
+[[./dwm.png]]
