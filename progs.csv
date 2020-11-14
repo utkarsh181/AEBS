@@ -1,4 +1,4 @@
-tag,name,purpose
+tag, name in repo (or git url), purpose (should be a verbose phrase to sound right while installing)
 ,xorg-server,"is the graphical server."
 ,xorg-xwininfo,"allows querying information about windows."
 ,xorg-xinit,"starts the graphical server."
@@ -8,6 +8,7 @@ tag,name,purpose
 ,dosfstools,"allows your computer to access dos-like filesystems."
 ,libnotify,"allows desktop notifications."
 ,dunst,"is a suckless notification system."
+,emacs,"only true text editor"
 ,exfat-utils,"allows management of FAT drives."
 ,xwallpaper,"sets the wallpaper."
 ,ffmpeg,"can record and splice video and audio on the command line."

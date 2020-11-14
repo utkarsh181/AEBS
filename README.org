@@ -1,11 +1,13 @@
 #+TITLE: Arch-Emacs Bootstrapping Script
 
 * Installation 
+
 #+begin_src bash
 git clone https://github.com/utkarsh181/AEBS
 cd AEBS
 python main.py
 #+end_src
+
 That's it
 
 [[./screenshot.png]]
