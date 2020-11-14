@@ -4,12 +4,20 @@ import os
 import sys
 import re
 import subprocess
+import argparse
 import getpass
 
-user = ''
+# collection of users personal collection file
 dotfiles = 'https://github.com/utkarsh181/dotfiles'
+
+# AUR helper to ease installation from AUR
 aurhelper = 'yay'
-pip_check = False
+
+# list of packages to be installed
+progsfile = 'progs.csv'
+
+user = '' # default username
+pip_check = False # flag to check for python-pip package
 
 # checks internet connection and distribution
 def check_environment():
@@ -17,8 +25,24 @@ def check_environment():
         check_pacman = ['pacman', '-Sy']
         subprocess.run(check_pacman, capture_output=True, check=True)
         return True
+    # Filenotfounderror for Windows 10
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
+
+# parse cmd line args and sets global variable accordingly
+def cmd_args():
+    global dotfiles, aurhelper, progsfile
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-r', '--dotfiles', help='dotfiles repo (local files or url)')
+    parser.add_argument('-p', '--program', help='dependencies and program csv (local file or url)')
+    parser.add_argument('-a', '--aur_helper', help='AUR helper (must have pacman like syntax)')
+    args = parser.parse_args()
+    if args.dotfiles :
+        dotfiles = args.dotfiles
+    if args.program :
+        progsfile = args.program
+    if args.aur_helper :
+        aurhelper = args.aur_helper
 
 def error_message(msg):
     red = "\033[1;31m"
@@ -132,8 +156,7 @@ def sudo_settings(text):
 # install 'aurhelper' using makepkg
 def get_aurhelper():
     try:
-        global aurhelper
-        global user
+        global aurhelper, user
         pwd = os.getcwd()
         print(f"Installing: {aurhelper}")
         os.chdir('/tmp')
@@ -162,8 +185,7 @@ def standard_install(package):
 # install package for AUR using 'aurhelper'
 def aur_install(package):
     try:
-        global user
-        global aurhelper
+        global user, aurhelper
         aur = ['sudo', '-u', user, aurhelper, '-S', '--noconfirm', package]
         subprocess.run(aur, capture_output=True, text=True, check=True)
     except subprocess.CalledProcessError as error:
@@ -212,8 +234,9 @@ def pip_install(package):
         error_message(error.stderr)
 
 def install_prog():
-    global user
-    with open('progs.csv', 'r', newline='') as csvfile:
+    global user, progsfile
+    # TODO: use curl to install if url is provided
+    with open(progsfile, 'r', newline='') as csvfile:
         tag_name = ['tag', 'name', 'purpose']
         prog_csv = csv.DictReader(csvfile, fieldnames=tag_name)
         next(prog_csv) # to skip first line of csv file
@@ -252,9 +275,11 @@ def systembeep_off():
     subprocess.run(beepconf, shell=True)
 
 def finalize():
-        green_msg("Congrats! Provided there were no hidden errors, the script completed successfully and all the programs and configuration files should be in place.\n\nTo run the new graphical environment, log out and log back in as your new user, then run the command \"startx\" to start the graphical environment (it will start automatically in tty1).\n\n.t Utkarsh Singh")
+    green_msg("Congrats! Provided there were no hidden errors, the script completed successfully and all the programs and configuration files should be in place.\n\nTo run the new graphical environment, log out and log back in as your new user, then run the command \"startx\" to start the graphical environment (it will start automatically in tty1).\n\n.t Utkarsh Singh")
 
 if __name__ == "__main__":
+    cmd_args()
+    # TODO: add some notification
     if check_environment():
         green_msg("Environment check passed!!")
     else:
