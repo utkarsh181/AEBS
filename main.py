@@ -7,15 +7,9 @@ import subprocess
 import argparse
 import getpass
 
-# collection of users personal collection file
-dotfiles = 'https://github.com/utkarsh181/dotfiles'
-
-# AUR helper to ease installation from AUR
-aurhelper = 'yay'
-
-# list of packages to be installed
-progsfile = 'progs.csv'
-
+dotfiles = 'https://github.com/utkarsh181/dotfiles' # config files
+aurhelper = 'yay' # AUR helper to ease installation from AUR
+progsfile = 'progs.csv' # list of packages to be installed
 user = '' # default username
 pip_check = False # flag to check for python-pip package
 
@@ -26,16 +20,19 @@ def check_environment():
         subprocess.run(check_pacman, capture_output=True, check=True)
         return True
     # Filenotfounderror for Windows 10
-    except (subprocess.CalledProcessError, FileNotFoundError):
+    except (subprocess.CalledProcessError, FileNotFoundError) :
         return False
 
 # parse cmd line args and sets global variable accordingly
 def cmd_args():
     global dotfiles, aurhelper, progsfile
     parser = argparse.ArgumentParser()
-    parser.add_argument('-r', '--dotfiles', help='dotfiles repo (local files or url)')
-    parser.add_argument('-p', '--program', help='dependencies and program csv (local file or url)')
-    parser.add_argument('-a', '--aur_helper', help='AUR helper (must have pacman like syntax)')
+    parser.add_argument('-r', '--dotfiles', help='dotfiles repo '
+                        '(local files or url)')
+    parser.add_argument('-p', '--program', help='dependencies and'
+                        ' program csv (local file or url)')
+    parser.add_argument('-a', '--aur_helper', help='AUR helper '
+                        '(must have pacman like syntax)')
     args = parser.parse_args()
     if args.dotfiles :
         dotfiles = args.dotfiles
@@ -109,7 +106,7 @@ def add_user():
         usermod = ['usermod', '-a', '-G', 'wheel', user]
         subprocess.run(usermod, capture_output=True, check=True)
         mkdir = ['mkdir', '-p', home]
-        subproces2s.run(mkdir)
+        subprocess.run(mkdir)
         chown = ['chown', user+':wheel', home]
         subprocess.run(chown)
         set_repodir(home)
@@ -126,7 +123,9 @@ def set_user_pass():
     print('Enter username: ', end='')
     user = input()
     while re.match('[a-z_][a-z0-9_-]*[$]?', user) == None:
-        error_message('Username not valid. Give a username beginning with a letter, with only lowercase letters, - or _.')
+        error_message('Username not valid.'
+                      ' Give a username beginning with a letter, '
+                      'with only lowercase letters, - or _.')
         print("Re-enter username: ", end='')
         user = input()
     pass1 = getpass.getpass('Enter password: ')
@@ -139,7 +138,8 @@ def set_user_pass():
             print("At least type password correctly!")
             exit(1)
     if not check_users():
-        warning_message("Given user already exist!! If continued conflicting file will be overwritten.")
+        warning_message("Given user already exist!!"
+                        " If continued conflicting file will be overwritten.")
         print("Do you want to continue(yes/no)? :", end='')
         ques = input()
         if ques != 'yes':
@@ -275,7 +275,9 @@ def systembeep_off():
     subprocess.run(beepconf, shell=True)
 
 def finalize():
-    green_msg("Congrats! Provided there were no hidden errors, the script completed successfully and all the programs and configuration files should be in place.\n\nTo run the new graphical environment, log out and log back in as your new user, then run the command \"startx\" to start the graphical environment (it will start automatically in tty1).\n\n.t Utkarsh Singh")
+    green_msg('Congrats! Provided there were no hidden errors,'
+              ' the script completed successfully and '
+              'all the programs and configuration files should be in place.')
 
 if __name__ == "__main__":
     cmd_args()
@@ -283,18 +285,28 @@ if __name__ == "__main__":
     if check_environment():
         green_msg("Environment check passed!!")
     else:
-        error_message("Are you sure you're running this as the root user, are on an Arch-based distribution and have an internet connection?")
+        error_message("Are you sure you're running this as the root user,"
+                      " are on an Arch-based distribution and "
+                      "have an internet connection?")
         exit(1)
     welcome_message()
     set_user_pass()
     # Allow user to run sudo without password. Since AUR programs must be installed
     # in a fakeroot environment, this is required for all builds with AUR.
     sudo_settings("%wheel ALL=(ALL) NOPASSWD: ALL #installer\n")
-    get_aurhelper()
-    install_prog()
-    put_dotfiles()
+    # get_aurhelper()
+    # install_prog()
+    # put_dotfiles()
     systembeep_off()
-    # This line, overwriting the `sudo_settings()` above will allow the user to run
+    # This line, overwriting the `sudo_settings()` above will allow the user to runp
     # serveral important commands, `shutdown`, `reboot`, updating, etc. without a password.
-    sudo_settings("%wheel ALL=(ALL) ALL #installer\n%wheel ALL=(ALL) NOPASSWD: /usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,/usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/pacman -Syu,/usr/bin/pacman -Syyu,/usr/bin/packer -Syu,/usr/bin/packer -Syyu,/usr/bin/systemctl restart NetworkManager,/usr/bin/rc-service NetworkManager restart,/usr/bin/pacman -Syyu --noconfirm,/usr/bin/loadkeys,/usr/bin/yay,/usr/bin/pacman -Syyuw --noconfirm #installer\n")
+    sudo_settings("%wheel ALL=(ALL) ALL #installer\n%wheel ALL=(ALL) NOPASSWD: "
+                  "/usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,"
+                  "/usr/bin/wifi-menu,/usr/bin/mount,"
+                  "/usr/bin/umount,/usr/bin/pacman -Syu,/usr/bin/pacman -Syyu,"
+                  "/usr/bin/packer -Syu,/usr/bin/packer -Syyu,"
+                  "/usr/bin/systemctl restart NetworkManager,"
+                  "/usr/bin/rc-service NetworkManager restart,"
+                  "/usr/bin/pacman -Syyu --noconfirm,/usr/bin/loadkeys,"
+                  "/usr/bin/yay,/usr/bin/pacman -Syyuw --noconfirm #installer\n")
     finalize()
