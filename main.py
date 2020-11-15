@@ -29,8 +29,8 @@ def cmd_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-r', '--dotfiles', help='dotfiles repo '
                         '(local files or url)')
-    parser.add_argument('-p', '--program', help='dependencies and'
-                        ' program csv (local file or url)')
+    parser.add_argument('-p', '--program', help='dependencies and '
+                        'program csv (local file or url)')
     parser.add_argument('-a', '--aur_helper', help='AUR helper '
                         '(must have pacman like syntax)')
     args = parser.parse_args()
@@ -117,6 +117,7 @@ def add_pass(password):
         chpass= 'echo ' + user + ':' + password + ' | chpasswd'
         subprocess.run(chpass, shell=True)
 
+# set username and password
 def set_user_pass():
     global user
 
@@ -138,8 +139,8 @@ def set_user_pass():
             print("At least type password correctly!")
             exit(1)
     if not check_users():
-        warning_message("Given user already exist!!"
-                        " If continued conflicting file will be overwritten.")
+        warning_message("Given user already exist!! "
+                        "If continued conflicting file will be overwritten.")
         print("Do you want to continue(yes/no)? :", end='')
         ques = input()
         if ques != 'yes':
@@ -160,7 +161,8 @@ def get_aurhelper():
         pwd = os.getcwd()
         print(f"Installing: {aurhelper}")
         os.chdir('/tmp')
-        get_source = ['curl', '-sO', 'https://aur.archlinux.org/cgit/aur.git/snapshot/'+aurhelper+'.tar.gz']
+        get_source = ['curl', '-sO', 'https://aur.archlinux.org'
+                      '/cgit/aur.git/snapshot/'+aurhelper+'.tar.gz']
         subprocess.run(get_source, capture_output=True, check=True)
         extract = ['sudo', '-u', user, 'tar', '-xvf', aurhelper+'.tar.gz']
         subprocess.run(extract, capture_output=True, check=True)
@@ -210,7 +212,7 @@ def gitmake_install(package):
         os.chdir(install_dir)
         subprocess.run(make, capture_output=True)
         os.chdir('/tmp')
-    # if git clone fails that pull from master branch
+    # if git clone fails that git pull from master branch
     except subprocess.CalledProcessError as error:
         os.chdir(install_dir)
         git_pull = ['sudo', '-u', user, 'git', 'pull' ,
@@ -233,9 +235,29 @@ def pip_install(package):
     except subprocess.CalledProcessError as error:
         error_message(error.stderr)
 
+def is_url(url):
+    regex = re.compile(
+        r'^(?:http|ftp)s?://' # http:// or https://
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' #domain...
+        r'localhost|' #localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
+        r'(?::\d+)?' # optional port
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+    if regex.match(url):
+        return True
+    else:
+        return False
+        
+# loop over prog_file and install package from respective location
 def install_prog():
     global user, progsfile
-    # TODO: use curl to install if url is provided
+
+    # if progfile is a url then curl to /tmp
+    if is_url(progsfile):
+        curl = 'curl -Ls ' + progsfile + '>/tmp/progs.csv'
+        subprocess.run(curl, shell=True)
+
+        progsfile = '/tmp/progs.csv'
     with open(progsfile, 'r', newline='') as csvfile:
         tag_name = ['tag', 'name', 'purpose']
         prog_csv = csv.DictReader(csvfile, fieldnames=tag_name)
@@ -251,6 +273,7 @@ def install_prog():
             else :
                 standard_install(row['name'])
 
+# clone dotfiles to tmp and then copy
 def put_dotfiles():
     try:
         global dotfiles
@@ -268,15 +291,17 @@ def put_dotfiles():
     except subprocess.CalledProcessError as error:
         error_message(error.stderr)
 
+# remove annoying system beep
 def systembeep_off():
     rm = ['rmmod', 'pcspkr']
-    subprocess.run(rm)
+    subprocess.run(rm, capture_output=True)
     beepconf = 'echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf'
     subprocess.run(beepconf, shell=True)
 
 def finalize():
-    green_msg('Congrats! Provided there were no hidden errors,'
-              ' the script completed successfully and '
+    print()
+    green_msg('Congrats! Provided there were no hidden errors, '
+              'the script completed successfully and '
               'all the programs and configuration files should be in place.')
 
 if __name__ == "__main__":
@@ -295,7 +320,7 @@ if __name__ == "__main__":
     # in a fakeroot environment, this is required for all builds with AUR.
     sudo_settings("%wheel ALL=(ALL) NOPASSWD: ALL #installer\n")
     # get_aurhelper()
-    # install_prog()
+    install_prog()
     # put_dotfiles()
     systembeep_off()
     # This line, overwriting the `sudo_settings()` above will allow the user to runp
