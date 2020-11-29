@@ -25,7 +25,6 @@ def check_environment():
 
 # parse cmd line args and sets global variable accordingly
 def cmd_args():
-    global dotfiles, aurhelper, progsfile
     parser = argparse.ArgumentParser()
     parser.add_argument('-r', '--dotfiles', help='dotfiles repo '
                         '(local files or url)')
@@ -41,6 +40,7 @@ def cmd_args():
     if args.aur_helper :
         aurhelper = args.aur_helper
 
+# colorize error msg
 def error_message(msg):
     red = "\033[1;31m"
     reset = "\033[0;0m"
@@ -49,6 +49,7 @@ def error_message(msg):
     sys.stdout.write(reset)
     print(msg)
 
+# colorize warning msg
 def warning_message(msg):
     orange = "\33[33m"
     reset = "\033[0;0m"
@@ -72,7 +73,6 @@ def welcome_message():
 # checks given user exist on system
 def check_users():
     try:
-        global user
         check_u = ['id', '-u', user]
         subprocess.run(check_u, capture_output=True, check=True)
         return False
@@ -95,10 +95,10 @@ def set_repodir(home):
 # add user account
 def add_user():
     try:
-        global user
         home = '/home/' + user
         useradd = ['useradd', '-m', '-g', 'wheel',
                    '-s', '/bin/zsh', user]
+        # make zsh as default shell
         subprocess.run(useradd, capture_output=True, check=True)
         set_repodir(home)
     # if users exist, then modify user account
@@ -113,14 +113,12 @@ def add_user():
 
 # add user's password
 def add_pass(password):
-        global user
         chpass= 'echo ' + user + ':' + password + ' | chpasswd'
         subprocess.run(chpass, shell=True)
 
 # set username and password
 def set_user_pass():
     global user
-
     print('Enter username: ', end='')
     user = input()
     while re.match('[a-z_][a-z0-9_-]*[$]?', user) == None:
@@ -143,11 +141,12 @@ def set_user_pass():
                         "If continued conflicting file will be overwritten.")
         print("Do you want to continue(yes/no)? :", end='')
         ques = input()
-        if ques != 'yes':
+        if ques == 'no':
             exit(1)
     add_user()
     add_pass(pass1)
 
+# edit sudoers files    
 def sudo_settings(text):
     sed = ['sed', '-i', '/#installer/d', '/etc/sudoers']
     subprocess.run(sed)
@@ -157,7 +156,6 @@ def sudo_settings(text):
 # install 'aurhelper' using makepkg
 def get_aurhelper():
     try:
-        global aurhelper, user
         pwd = os.getcwd()
         print(f"Installing: {aurhelper}")
         os.chdir('/tmp')
@@ -187,7 +185,6 @@ def standard_install(package):
 # install package for AUR using 'aurhelper'
 def aur_install(package):
     try:
-        global user, aurhelper
         aur = ['sudo', '-u', user, aurhelper, '-S', '--noconfirm', package]
         subprocess.run(aur, capture_output=True, text=True, check=True)
     except subprocess.CalledProcessError as error:
@@ -198,7 +195,6 @@ def aur_install(package):
 # get code from git and compile it  using make
 def gitmake_install(package):
     try:
-        global user
         pwd = '/home/' + user + '/.local/src'
         os.chdir(pwd)
         make = ['make', 'install']
@@ -221,12 +217,11 @@ def gitmake_install(package):
         subprocess.run(make, capture_output=True)
         os.chdir('/tmp')
     except Exception as error:
-        error_message(error)
+        error_message("Oops! unknown exception occurred")
 
 # install package from pip
 def pip_install(package):
     try:
-        global pip_check
         if pip_check == False:
             standard_install('python-pip')
             pip_check = True
@@ -235,6 +230,7 @@ def pip_install(package):
     except subprocess.CalledProcessError as error:
         error_message(error.stderr)
 
+# is this a valid url?        
 def is_url(url):
     regex = re.compile(
         r'^(?:http|ftp)s?://' # http:// or https://
@@ -250,14 +246,13 @@ def is_url(url):
         
 # loop over prog_file and install package from respective location
 def install_prog():
-    global user, progsfile
-
+    global progsfile
     # if progfile is a url then curl to /tmp
     if is_url(progsfile):
         curl = 'curl -Ls ' + progsfile + '>/tmp/progs.csv'
         subprocess.run(curl, shell=True)
-
         progsfile = '/tmp/progs.csv'
+
     with open(progsfile, 'r', newline='') as csvfile:
         tag_name = ['tag', 'name', 'purpose']
         prog_csv = csv.DictReader(csvfile, fieldnames=tag_name)
@@ -273,11 +268,9 @@ def install_prog():
             else :
                 standard_install(row['name'])
 
-# clone dotfiles to tmp and then copy
+# clone dotfiles to /tmp and then copy
 def put_dotfiles():
     try:
-        global dotfiles
-        global user
         os.chdir('/tmp')
         git_clone = ['sudo', '-u', user, 'git', 'clone', dotfiles]
         subprocess.run(git_clone, capture_output=True, check=True)
@@ -311,7 +304,7 @@ if __name__ == "__main__":
         green_msg("Environment check passed!!")
     else:
         error_message("Are you sure you're running this as the root user,"
-                      " are on an Arch-based distribution and "
+                      " are you on an Arch-based distribution and "
                       "have an internet connection?")
         exit(1)
     welcome_message()
@@ -322,7 +315,7 @@ if __name__ == "__main__":
     # get_aurhelper()
     install_prog()
     # put_dotfiles()
-    systembeep_off()
+    # systembeep_off()
     # This line, overwriting the `sudo_settings()` above will allow the user to runp
     # serveral important commands, `shutdown`, `reboot`, updating, etc. without a password.
     sudo_settings("%wheel ALL=(ALL) ALL #installer\n%wheel ALL=(ALL) NOPASSWD: "
