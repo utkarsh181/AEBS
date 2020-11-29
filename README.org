@@ -10,4 +10,4 @@ python main.py
 
 That's it
 
-[[./screenshot.png]]
+[[file:doc/screenshot.png]]
