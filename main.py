@@ -13,6 +13,12 @@ progsfile = 'progs.csv' # list of packages to be installed
 user = '' # default username
 pip_check = False # flag to check for python-pip package
 
+# colors
+red = "\033[1;31m"
+orange = "\33[33m"
+green = "\33[32m"
+reset = "\033[0;0m"
+
 # checks internet connection and distribution
 def check_environment():
     try:
@@ -42,28 +48,15 @@ def cmd_args():
 
 # colorize error msg
 def error_message(msg):
-    red = "\033[1;31m"
-    reset = "\033[0;0m"
-    sys.stdout.write(red)
-    print('Error: ', end='')
-    sys.stdout.write(reset)
+    print(red+'Error: '+reset, end='')
     print(msg)
 
 # colorize warning msg
 def warning_message(msg):
-    orange = "\33[33m"
-    reset = "\033[0;0m"
-    sys.stdout.write(orange)
-    print('Warning: ', end='')
-    sys.stdout.write(reset)
-    print(msg)
+    print(orange+'Warning: '+reset, end='')
 
 def green_msg(msg):
-    green = "\33[32m"
-    reset = "\033[0;0m"
-    sys.stdout.write(green)
-    print(msg)
-    sys.stdout.write(reset)
+    print(green+msg+reset)
 
 def welcome_message():
     with open('welcome.txt', 'r') as f:
