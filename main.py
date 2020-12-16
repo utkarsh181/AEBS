@@ -1,7 +1,6 @@
-#!/bin/python
+#!/usr/bin/env python3
 import csv
 import os
-import sys
 import re
 import subprocess
 import argparse
@@ -25,7 +24,6 @@ def check_environment():
         check_pacman = ['pacman', '-Sy']
         subprocess.run(check_pacman, capture_output=True, check=True)
         return True
-    # Filenotfounderror for Windows 10
     except (subprocess.CalledProcessError, FileNotFoundError) :
         return False
 
@@ -307,8 +305,8 @@ if __name__ == "__main__":
     sudo_settings("%wheel ALL=(ALL) NOPASSWD: ALL #installer\n")
     # get_aurhelper()
     install_prog()
-    # put_dotfiles()
-    # systembeep_off()
+    put_dotfiles()
+    systembeep_off()
     # This line, overwriting the `sudo_settings()` above will allow the user to runp
     # serveral important commands, `shutdown`, `reboot`, updating, etc. without a password.
     sudo_settings("%wheel ALL=(ALL) ALL #installer\n%wheel ALL=(ALL) NOPASSWD: "
