@@ -1,13 +1,47 @@
 #+TITLE: Arch-Emacs Bootstrapping Script
 
+* Introduction
+
+AEBS is a python script which tries to bootstrap a Emacs based system
+on top on Arch Linux.  By default AEBS install my dotfiles which are
+also geared toward Emacs friendly environment.
+
+Even if you are not a Emacs user you can use AEBS to bootstrap your Arch
+Linux installation as it was made to make my Arch Linux installation process
+less time consuming.
+
 * Installation 
 
-#+begin_src bash
-git clone https://github.com/utkarsh181/AEBS
-cd AEBS
-python main.py
-#+end_src
+#+BEGIN_SRC sh
+  git clone https://github.com/utkarsh181/AEBS
+  cd AEBS
+  python main.py
+#+END_SRC
 
-That's it
+That's it.
 
-[[file:doc/screenshot.png]]
+Above command will run the =main.py= file which will further present a
+simple command line interface to guide you through the installation.
+
+* Options
+
+#+BEGIN_SRC sh
+  $ python main.py -h
+  usage: main.py [-h] [-r DOTFILES] [-p PROGRAM] [-a AUR_HELPER]
+
+  optional arguments:
+    -h, --help            show this help message and exit
+    -r DOTFILES, --dotfiles DOTFILES
+			  dotfiles repo (local files or url)
+    -p PROGRAM, --program PROGRAM
+			  dependencies and program csv (local file or url)
+    -a AUR_HELPER, --aur_helper AUR_HELPER
+			  AUR helper (must have pacman like syntax)
+#+END_SRC
+
+Just like every good program AEBS also tries to be modular.  It takes
+several options to choose =dotfile repo=, =aur helper name= etc.
+
+* See also
+
++ [[https:larbs.xyz][LARBS]]
