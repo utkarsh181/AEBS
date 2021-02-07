@@ -42,6 +42,11 @@ simple command line interface to guide you through the installation.
 Just like every good program AEBS also tries to be modular.  It takes
 several options to choose =dotfile repo=, =aur helper name= etc.
 
+* Copying
+
+Unless otherwise noted, all code herein is distributed under the terms
+of the GNU General Public License Version 3 or later.
+
 * See also
 
 + [[https:larbs.xyz][LARBS]]
