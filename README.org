@@ -15,19 +15,19 @@ less time consuming.
 #+BEGIN_SRC sh
   git clone https://github.com/utkarsh181/AEBS
   cd AEBS
-  python main.py
+  python aebs.py
 #+END_SRC
 
 That's it.
 
-Above command will run the =main.py= file which will further present a
+Above command will run the =aebs.py= file which will further present a
 simple command line interface to guide you through the installation.
 
 * Options
 
 #+BEGIN_SRC sh
-  $ python main.py -h
-  usage: main.py [-h] [-r DOTFILES] [-p PROGRAM] [-a AUR_HELPER]
+  $ python aebs.py -h
+  usage: aebs.py [-h] [-r DOTFILES] [-p PROGRAM] [-a AUR_HELPER]
 
   optional arguments:
     -h, --help            show this help message and exit
