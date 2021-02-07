@@ -106,7 +106,7 @@ def add_user():
         # make zsh as default shell
         subprocess.run(useradd, capture_output=True, check=True)
         set_repodir(home)
-    # if users exist, then modify user account
+        # if users exist, then modify user account
     except subprocess.CalledProcessError:
         usermod = ['usermod', '-a', '-G', 'wheel', user]
         subprocess.run(usermod, capture_output=True, check=True)
@@ -118,8 +118,8 @@ def add_user():
 
 # add user's password
 def add_pass(password):
-        chpass= 'echo ' + user + ':' + password + ' | chpasswd'
-        subprocess.run(chpass, shell=True)
+    chpass= 'echo ' + user + ':' + password + ' | chpasswd'
+    subprocess.run(chpass, shell=True)
 
 # set username and password
 def set_user_pass():
@@ -132,8 +132,8 @@ def set_user_pass():
                       'with only lowercase letters, - or _.')
         print("Re-enter username: ", end='')
         user = input()
-    pass1 = getpass.getpass('Enter password: ')
-    pass2 = getpass.getpass('Re-enter password: ')
+        pass1 = getpass.getpass('Enter password: ')
+        pass2 = getpass.getpass('Re-enter password: ')
     while pass1 != pass2:
         try:
             error_message('Passwords do not match')
@@ -148,10 +148,10 @@ def set_user_pass():
         ques = input()
         if ques == 'no':
             exit(1)
-    add_user()
-    add_pass(pass1)
+            add_user()
+            add_pass(pass1)
 
-# edit sudoers files    
+# edit sudoers files
 def sudo_settings(text):
     sed = ['sed', '-i', '/#installer/d', '/etc/sudoers']
     subprocess.run(sed)
@@ -213,7 +213,7 @@ def gitmake_install(package):
         os.chdir(install_dir)
         subprocess.run(make, capture_output=True)
         os.chdir('/tmp')
-    # if git clone fails that git pull from master branch
+        # if git clone fails that git pull from master branch
     except subprocess.CalledProcessError as error:
         os.chdir(install_dir)
         git_pull = ['sudo', '-u', user, 'git', 'pull' ,
@@ -230,12 +230,12 @@ def pip_install(package):
         if pip_check == False:
             standard_install('python-pip')
             pip_check = True
-        pip = ['pip', 'install', package]
-        subprocess.run(pip, capture_output=True, check=True)
+            pip = ['pip', 'install', package]
+            subprocess.run(pip, capture_output=True, check=True)
     except subprocess.CalledProcessError as error:
         error_message(error.stderr)
 
-# is this a valid url?        
+# is this a valid url?
 def is_url(url):
     regex = re.compile(
         r'^(?:http|ftp)s?://' # http:// or https://
@@ -248,7 +248,7 @@ def is_url(url):
         return True
     else:
         return False
-        
+
 # loop over prog_file and install package from respective location
 def install_prog():
     global progsfile
@@ -276,16 +276,25 @@ def install_prog():
 # clone dotfiles to /tmp and then copy
 def put_dotfiles():
     try:
+        # clone dotfile to /tmp
         os.chdir('/tmp')
         git_clone = ['sudo', '-u', user, 'git', 'clone', dotfiles]
         subprocess.run(git_clone, capture_output=True, check=True)
+        
+        # change dir to cloned repository
         bname = ['basename', dotfiles]
         get_repo_name = subprocess.run(bname, capture_output=True, text=True)
         repo_name = get_repo_name.stdout
         repo_name = repo_name.splitlines()[0] # remove trailing '\n'
         dot_dir = '/tmp/' + repo_name
-        copy = ['sudo', '-u', user, 'cp', '-rfT', dot_dir, '/home/'+user]
-        subprocess.run(copy, capture_output=True, check= True)
+        os.chdir(dot_dir)
+
+        # install all stow packages in home directory
+        stow_package = ['aebs', 'emacs', 'git', 'mbsync', 'mpv', 'ncmpcpp',
+                        'nyxt', 'x11', 'dunst', 'fontconfig', 'htop', 'mpd',
+                        'msmtp', 'notmuch', 'shell', 'zsh']
+        stow_install = ['stow', '-t', '/home/'+user] + stow_package
+        subprocess.run(stow_install, capture_output=True, check=True)
     except subprocess.CalledProcessError as error:
         error_message(error.stderr)
 
@@ -312,10 +321,10 @@ if __name__ == "__main__":
                       " are you on an Arch-based distribution and "
                       "have an internet connection?")
         exit(1)
-    welcome_message()
-    set_user_pass()
-    # Allow user to run sudo without password. Since AUR programs must be installed
-    # in a fakeroot environment, this is required for all builds with AUR.
+        welcome_message()
+        set_user_pass()
+        # Allow user to run sudo without password. Since AUR programs must be installed
+        # in a fakeroot environment, this is required for all builds with AUR.
     sudo_settings("%wheel ALL=(ALL) NOPASSWD: ALL #installer\n")
     get_aurhelper()
     install_prog()
