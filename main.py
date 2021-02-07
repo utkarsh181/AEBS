@@ -106,7 +106,7 @@ def add_user():
         # make zsh as default shell
         subprocess.run(useradd, capture_output=True, check=True)
         set_repodir(home)
-        # if users exist, then modify user account
+    # if users exist, then modify user account
     except subprocess.CalledProcessError:
         usermod = ['usermod', '-a', '-G', 'wheel', user]
         subprocess.run(usermod, capture_output=True, check=True)
@@ -132,8 +132,8 @@ def set_user_pass():
                       'with only lowercase letters, - or _.')
         print("Re-enter username: ", end='')
         user = input()
-        pass1 = getpass.getpass('Enter password: ')
-        pass2 = getpass.getpass('Re-enter password: ')
+    pass1 = getpass.getpass('Enter password: ')
+    pass2 = getpass.getpass('Re-enter password: ')
     while pass1 != pass2:
         try:
             error_message('Passwords do not match')
@@ -213,7 +213,7 @@ def gitmake_install(package):
         os.chdir(install_dir)
         subprocess.run(make, capture_output=True)
         os.chdir('/tmp')
-        # if git clone fails that git pull from master branch
+    # if git clone fails that git pull from master branch
     except subprocess.CalledProcessError as error:
         os.chdir(install_dir)
         git_pull = ['sudo', '-u', user, 'git', 'pull' ,
@@ -227,11 +227,13 @@ def gitmake_install(package):
 # install package from pip
 def pip_install(package):
     try:
+        # install pip if not installed
         if pip_check == False:
             standard_install('python-pip')
             pip_check = True
-            pip = ['pip', 'install', package]
-            subprocess.run(pip, capture_output=True, check=True)
+            
+        pip = ['pip', 'install', package]
+        subprocess.run(pip, capture_output=True, check=True)
     except subprocess.CalledProcessError as error:
         error_message(error.stderr)
 
@@ -313,6 +315,7 @@ def finalize():
 
 if __name__ == "__main__":
     cmd_args()
+
     # TODO: add some notification
     if check_environment():
         green_msg("Environment check passed!!")
@@ -321,10 +324,11 @@ if __name__ == "__main__":
                       " are you on an Arch-based distribution and "
                       "have an internet connection?")
         exit(1)
-        welcome_message()
-        set_user_pass()
-        # Allow user to run sudo without password. Since AUR programs must be installed
-        # in a fakeroot environment, this is required for all builds with AUR.
+        
+    welcome_message()
+    set_user_pass()
+    # Allow user to run sudo without password. Since AUR programs must be installed
+    # in a fakeroot environment, this is required for all builds with AUR.
     sudo_settings("%wheel ALL=(ALL) NOPASSWD: ALL #installer\n")
     get_aurhelper()
     install_prog()
