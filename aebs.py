@@ -82,7 +82,7 @@ def check_users():
     try:
         pwd.getpwnam(user)
         return True
-    except KeyError :
+    except KeyError:
         return False
 
 # add repodir = directory to clone all repo's
@@ -119,17 +119,14 @@ def set_user_pass():
 
     print('Enter username: ', end='')
     user = input()
-
     while re.match('[a-z_][a-z0-9_-]*[$]?', user) == None:
         error_message('Username not valid.'
                       ' Give a username beginning with a letter, '
                       'with only lowercase letters, - or _.')
         print("Re-enter username: ", end='')
         user = input()
-
     pass1 = getpass.getpass('Enter password: ')
     pass2 = getpass.getpass('Re-enter password: ')
-
     while pass1 != pass2:
         try:
             error_message('Passwords do not match')
@@ -137,7 +134,6 @@ def set_user_pass():
         except KeyboardInterrupt:
             print("At least type password correctly!")
             exit(1)
-
     if check_users():
         warning_message("Given user already exist!! "
                         "If continued conflicting file will be overwritten.")
@@ -148,9 +144,7 @@ def set_user_pass():
         else:
             add_user()
             add_pass(pass1)
-
     user_info = pwd.getpwnam(user)
-            
 
 # edit sudoers files
 def sudo_settings(text):
