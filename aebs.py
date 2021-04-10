@@ -25,6 +25,7 @@ dotfiles = 'https://github.com/utkarsh181/dotfiles' # config files
 aurhelper = 'yay' # AUR helper to ease installation from AUR
 progsfile = 'progs.csv' # list of packages to be installed
 user = '' # default username
+user_info = ''
 pip_check = False # flag to check for python-pip package
 
 # colors
@@ -86,34 +87,25 @@ def check_users():
 
 # add repodir = directory to clone all repo's
 def set_repodir(home):
-    try:
-        repodir = home + '/.local/src'
-        mkdir = ['mkdir', '-p', repodir]
-        subprocess.run(mkdir, capture_output=True)
-        chown1 = ['chown', user+':wheel', home + '/.local']
-        chown2 = ['chown', user+':wheel', repodir]
-        subprocess.run(chown1, capture_output=True)
-        subprocess.run(chown2, capture_output=True)
-    except subprocess.CalledProcessError as error:
-        error_message(error.stderr)
+    repodir = home + '/.local/src'
+    os.mkdir(repodir)
+    os.chown(repodir, user_info.pw_uid, pw_gid)
 
 # add user account
 def add_user():
     try:
         home = '/home/' + user
         useradd = ['useradd', '-m', '-g', 'wheel',
-                   '-s', '/bin/zsh', user]
-        # make zsh as default shell
+                   '-s', '/bin/bash', user]
+        # make bash as default shell
         subprocess.run(useradd, capture_output=True, check=True)
         set_repodir(home)
     # if users exist, then modify user account
     except subprocess.CalledProcessError:
         usermod = ['usermod', '-a', '-G', 'wheel', user]
         subprocess.run(usermod, capture_output=True, check=True)
-        mkdir = ['mkdir', '-p', home]
-        subprocess.run(mkdir)
-        chown = ['chown', user+':wheel', home]
-        subprocess.run(chown)
+        os.mkdir(home)
+        os.chown(home, user_info.pw_uid, pw_gid)
         set_repodir(home)
 
 # add user's password
@@ -123,17 +115,21 @@ def add_pass(password):
 
 # set username and password
 def set_user_pass():
-    global user
+    global user, user_info
+
     print('Enter username: ', end='')
     user = input()
+
     while re.match('[a-z_][a-z0-9_-]*[$]?', user) == None:
         error_message('Username not valid.'
                       ' Give a username beginning with a letter, '
                       'with only lowercase letters, - or _.')
         print("Re-enter username: ", end='')
         user = input()
+
     pass1 = getpass.getpass('Enter password: ')
     pass2 = getpass.getpass('Re-enter password: ')
+
     while pass1 != pass2:
         try:
             error_message('Passwords do not match')
@@ -141,6 +137,7 @@ def set_user_pass():
         except KeyboardInterrupt:
             print("At least type password correctly!")
             exit(1)
+
     if check_users():
         warning_message("Given user already exist!! "
                         "If continued conflicting file will be overwritten.")
@@ -148,8 +145,12 @@ def set_user_pass():
         ques = input()
         if ques == 'no':
             exit(1)
+        else:
             add_user()
             add_pass(pass1)
+
+    user_info = pwd.getpwnam(user)
+            
 
 # edit sudoers files
 def sudo_settings(text):
