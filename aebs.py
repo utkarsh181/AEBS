@@ -15,6 +15,7 @@
 
 import csv
 import os
+import pwd
 import re
 import subprocess
 import argparse
@@ -78,11 +79,10 @@ def welcome_message():
 # checks given user exist on system
 def check_users():
     try:
-        check_u = ['id', '-u', user]
-        subprocess.run(check_u, capture_output=True, check=True)
-        return False
-    except subprocess.CalledProcessError :
+        pwd.getpwnam(user)
         return True
+    except KeyError :
+        return False
 
 # add repodir = directory to clone all repo's
 def set_repodir(home):
@@ -141,7 +141,7 @@ def set_user_pass():
         except KeyboardInterrupt:
             print("At least type password correctly!")
             exit(1)
-    if not check_users():
+    if check_users():
         warning_message("Given user already exist!! "
                         "If continued conflicting file will be overwritten.")
         print("Do you want to continue(yes/no)? :", end='')
