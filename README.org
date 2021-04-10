@@ -23,6 +23,14 @@ That's it.
 Above command will run the =aebs.py= file which will further present a
 simple command line interface to guide you through the installation.
 
+* Don't use it
+
+This project was a part of my University's Python Programming Course
+hence we were limited with our choice of language.  According to me a
+better choice will be =POSIX Shell scripts=.  Nowadays I use =stow= to
+manage my [[https://github.com/utkarsh181/dotfiles][dotfiles]] which are sufficiently reproducible.  Also, like
+[[https://archwiki.org][Archwiki]] I will recommend against AUR helpers.
+
 * Options
 
 #+BEGIN_SRC sh
