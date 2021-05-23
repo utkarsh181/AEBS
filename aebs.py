@@ -40,7 +40,7 @@ def check_environment():
         check_pacman = ['pacman', '-Sy']
         subprocess.run(check_pacman, capture_output=True, check=True)
         return True
-    except (subprocess.CalledProcessError, FileNotFoundError) :
+    except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
 # parse cmd line args and sets global variable accordingly
@@ -53,11 +53,11 @@ def cmd_args():
     parser.add_argument('-a', '--aur_helper', help='AUR helper '
                         '(must have pacman like syntax)')
     args = parser.parse_args()
-    if args.dotfiles :
+    if args.dotfiles:
         dotfiles = args.dotfiles
-    if args.program :
+    if args.program:
         progsfile = args.program
-    if args.aur_helper :
+    if args.aur_helper:
         aurhelper = args.aur_helper
 
 # colorize error msg
@@ -137,7 +137,7 @@ def set_user_pass():
     if check_users():
         warning_message("Given user already exist!! "
                         "If continued conflicting file will be overwritten.")
-        print("Do you want to continue(yes/no)? :", end='')
+        print("Do you want to continue(yes/no)?:", end='')
         ques = input()
         if ques == 'no':
             exit(1)
@@ -192,7 +192,7 @@ def aur_install(package):
     except Exception as error:
         error_message(error)
 
-# get code from git and compile it  using make
+# get source from git and compile it using make
 def gitmake_install(package):
     try:
         pwd = '/home/' + user + '/.local/src'
@@ -232,10 +232,10 @@ def pip_install(package):
     except subprocess.CalledProcessError as error:
         error_message(error.stderr)
 
-# check if url is a valid https link using regex
+# check if url is a valid http(s)/ftp(s) link
 def is_url(url):
     regex = re.compile(
-        r'^(?:http|ftp)s?://' # http:// or https://
+        r'^(?:http|ftp)s?://'
         r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' #domain...
         r'localhost|' #localhost...
         r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
@@ -267,7 +267,7 @@ def install_prog():
                 aur_install(row['name'])
             elif row['tag'] == 'P':
                 pip_install(row['name'])
-            else :
+            else:
                 standard_install(row['name'])
 
 # clone dotfiles to /tmp and then copy
